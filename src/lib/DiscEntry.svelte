@@ -25,7 +25,6 @@
   <div>
     <label for="">Sound</label>
     <input
-      class="form-control form-control-lg"
       type="file"
       on:change={(event) => (disc.sound = event.currentTarget.files[0])}
     />
@@ -34,14 +33,13 @@
   <div>
     <label for="">Texture</label>
     <input
-      class="form-control form-control-lg"
       type="file"
       on:change={(event) => (disc.texture = event.currentTarget.files[0])}
     />
   </div>
 </main>
 
-<style>
+<style lang="scss">
   main {
     display: grid;
     gap: 1rem;
@@ -66,12 +64,12 @@
     height: 100%;
     border-radius: 8px;
     position: absolute;
-    transform: translateX(-54px);
+    transform: translateX(-44px);
 
     transition: background-color 0.2s;
-  }
 
-  .remove-button:hover {
-    background-color: lightcoral;
+    &:hover {
+      background-color: lightcoral;
+    }
   }
 </style>

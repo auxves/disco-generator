@@ -1,7 +1,7 @@
 <script lang="ts">
   import DiscEntry from "./lib/DiscEntry.svelte"
+  import { generate } from "./logic"
   import type { Disc } from "./types"
-  import { downloadZip } from "client-zip"
 
   let name = ""
   let id = ""
@@ -9,84 +9,13 @@
 
   let discs: Disc[] = []
 
-  async function download() {
-    const fabricModJson = {
-      name: "fabric.mod.json",
-      input: JSON.stringify({
-        schemaVersion: 1,
-        id,
-        name,
-        description,
-        version: "1.0.0",
-        custom: {
-          disco: {
-            discs: discs.map((disc) => ({ id: disc.id, duration: 100 })),
-          },
-        },
-      }),
-    }
-
-    const soundsJson = {
-      name: `assets/${id}/sounds.json`,
-      input: JSON.stringify(
-        Object.fromEntries(
-          discs.map((disc) => [
-            disc.id,
-            {
-              category: "record",
-              sounds: [{ name: `${id}:${disc.id}`, stream: true }],
-            },
-          ])
-        )
-      ),
-    }
-
-    const textures = discs.map((disc) => ({
-      name: `assets/${id}/textures/item/${disc.id}.png`,
-      input: disc.texture,
-    }))
-
-    const sounds = discs.map((disc) => ({
-      name: `assets/${id}/sounds/${disc.id}.ogg`,
-      input: disc.sound,
-    }))
-
-    const models = discs.map((disc) => ({
-      name: `assets/${id}/models/item/${disc.id}.json`,
-      input: JSON.stringify({
-        parent: "item/generated",
-        textures: {
-          layer0: `${id}:item/${disc.id}`,
-        },
-      }),
-    }))
-
-    const translations = {
-      name: `assets/${id}/lang/en_us.json`,
-      input: JSON.stringify(
-        Object.fromEntries(
-          discs.map((disc) => [`item.${id}.${disc.id}.desc`, disc.name])
-        )
-      ),
-    }
-
-    const blob = await downloadZip([
-      fabricModJson,
-      soundsJson,
-      ...sounds,
-      ...textures,
-      ...models,
-      translations,
-    ]).blob()
-
-    const link = document.createElement("a")
-    const blobUrl = URL.createObjectURL(blob)
-    link.href = blobUrl
-    link.download = `${id}-1.0.0.jar`
-    link.click()
-    link.remove()
-
-    URL.revokeObjectURL(blobUrl)
+  function download() {
+    generate({
+      discs,
+      id,
+      name,
+      description,
+    })
   }
 
   function addNew() {
@@ -138,13 +67,33 @@
     <DiscEntry bind:disc remove={() => remove(i)} />
   {/each}
 
-  <button on:click={addNew}>Add New</button>
-  <button on:click={download}>Download</button>
+  <div class="buttons">
+    <button class="add-new" on:click={addNew}>Add New</button>
+    <button class="download" on:click={download}>Download</button>
+  </div>
 </main>
 
-<style>
+<style lang="scss">
   main {
     display: grid;
     gap: 1.5rem;
+  }
+
+  .buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .add-new {
+    --color: hsl(0, 0%, 10%);
+    --background-color: hsl(17, 100%, 75%);
+    --background-color-hover: rgb(212, 136, 106);
+  }
+
+  .download {
+    --color: hsl(0, 0%, 10%);
+    --background-color: hsl(195, 53%, 80%);
+    --background-color-hover: hsl(193, 28%, 71%);
   }
 </style>
