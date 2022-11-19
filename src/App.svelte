@@ -31,7 +31,7 @@
 <main>
   <h1>Disco Generator</h1>
 
-  <div class="input-group">
+  <div>
     <label for="name">Name</label>
     <input
       id="name"
@@ -41,7 +41,7 @@
     />
   </div>
 
-  <div class="input-group">
+  <div>
     <label for="identifier">Identifier</label>
     <input
       id="identifier"
@@ -51,7 +51,7 @@
     />
   </div>
 
-  <div class="input-group">
+  <div>
     <label for="description">Description</label>
     <input
       id="description"
