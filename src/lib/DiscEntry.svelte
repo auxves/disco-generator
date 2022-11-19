@@ -44,10 +44,9 @@
     display: grid;
     gap: 1rem;
     position: relative;
-  }
+    padding-left: 3rem;
 
-  @media (min-width: 900px) {
-    main {
+    @media (min-width: 900px) {
       grid-template-columns: 1fr 1fr;
     }
   }
@@ -57,19 +56,18 @@
     align-items: center;
     justify-content: center;
 
-    background-color: aquamarine;
+    background-color: hsl(0, 50%, 70%);
     color: black;
 
     width: 32px;
     height: 100%;
     border-radius: 8px;
     position: absolute;
-    transform: translateX(-44px);
 
     transition: background-color 0.2s;
 
     &:hover {
-      background-color: lightcoral;
+      background-color: hsl(0, 30%, 55%);
     }
   }
 </style>

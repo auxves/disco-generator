@@ -86,14 +86,20 @@
   }
 
   .add-new {
-    --color: hsl(0, 0%, 10%);
-    --background-color: hsl(17, 100%, 75%);
-    --background-color-hover: rgb(212, 136, 106);
+    color: hsl(0, 0%, 10%);
+    background-color: hsl(17, 100%, 75%);
+
+    &:hover {
+      background-color: rgb(212, 136, 106);
+    }
   }
 
   .download {
-    --color: hsl(0, 0%, 10%);
-    --background-color: hsl(195, 53%, 80%);
-    --background-color-hover: hsl(193, 28%, 71%);
+    color: hsl(0, 0%, 10%);
+    background-color: hsl(195, 50%, 80%);
+
+    &:hover {
+      background-color: hsl(193, 25%, 65%);
+    }
   }
 </style>

@@ -39,6 +39,10 @@ h2 {
   width: 100%;
   margin: 0 auto;
   padding: 2rem;
+
+  @media (min-width: 900px) {
+    padding: 4rem;
+  }
 }
 
 button {
@@ -50,15 +54,12 @@ button {
   font-family: inherit;
   cursor: pointer;
 
-  --color: hsl(0, 0%, 85%);
-  --background-color: hsl(0, 0%, 10%);
-  color: var(--color);
-  background-color: var(--background-color);
+  color: hsl(0, 0%, 85%);
+  background-color: hsl(0, 0%, 10%);
   transition: background-color 0.2s;
 
   &:hover {
-    --background-color-hover: hsl(0, 0%, 7%);
-    background-color: var(--background-color-hover);
+    background-color: hsl(0, 0%, 7%);
   }
 }
 
@@ -78,6 +79,8 @@ input[type="text"] {
 
   color: var(--color);
   background-color: var(--background-color);
+ 
+  transition: outline 0.2s;
 }
 
 label {
