@@ -1,0 +1,77 @@
+<script lang="ts">
+  import type { Disc } from "../types"
+
+  export let disc: Disc
+  export let remove: () => void
+</script>
+
+<main>
+  <button class="remove-button" on:click={remove}>✕</button>
+
+  <div>
+    <label for="">Identifier</label>
+    <input
+      type="text"
+      placeholder="Make sure this is unique"
+      bind:value={disc.id}
+    />
+  </div>
+
+  <div>
+    <label for="">Name</label>
+    <input type="text" placeholder="Artist - Song" bind:value={disc.name} />
+  </div>
+
+  <div>
+    <label for="">Sound</label>
+    <input
+      class="form-control form-control-lg"
+      type="file"
+      on:change={(event) => (disc.sound = event.currentTarget.files[0])}
+    />
+  </div>
+
+  <div>
+    <label for="">Texture</label>
+    <input
+      class="form-control form-control-lg"
+      type="file"
+      on:change={(event) => (disc.texture = event.currentTarget.files[0])}
+    />
+  </div>
+</main>
+
+<style>
+  main {
+    display: grid;
+    gap: 1rem;
+    position: relative;
+  }
+
+  @media (min-width: 900px) {
+    main {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .remove-button {
+    display: grid;
+    align-items: center;
+    justify-content: center;
+
+    background-color: aquamarine;
+    color: black;
+
+    width: 32px;
+    height: 100%;
+    border-radius: 8px;
+    position: absolute;
+    transform: translateX(-54px);
+
+    transition: background-color 0.2s;
+  }
+
+  .remove-button:hover {
+    background-color: lightcoral;
+  }
+</style>
