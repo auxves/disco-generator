@@ -64,7 +64,7 @@
   <h2>Discs</h2>
 
   {#each discs as disc, i (disc)}
-    <DiscEntry bind:disc remove={() => remove(i)} />
+    <DiscEntry bind:disc on:remove={() => remove(i)} />
   {/each}
 
   <div class="buttons">
@@ -77,6 +77,18 @@
   main {
     display: grid;
     gap: 1.5rem;
+  }
+
+  h1 {
+    font-size: 3.2rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin: 0;
+  }
+
+  h2 {
+    font-size: 2rem;
+    margin: 0;
   }
 
   .buttons {

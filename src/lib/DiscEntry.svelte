@@ -1,12 +1,14 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte"
   import type { Disc } from "../types"
 
+  const dispatch = createEventDispatcher()
+
   export let disc: Disc
-  export let remove: () => void
 </script>
 
 <main>
-  <button class="remove-button" on:click={remove}>✕</button>
+  <button class="remove-button" on:click={() => dispatch("remove")}>✕</button>
 
   <div>
     <label for="">Identifier</label>
