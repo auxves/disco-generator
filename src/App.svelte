@@ -63,7 +63,7 @@
 
   <h2>Discs</h2>
 
-  {#each discs as disc, i}
+  {#each discs as disc, i (disc)}
     <DiscEntry bind:disc remove={() => remove(i)} />
   {/each}
 
