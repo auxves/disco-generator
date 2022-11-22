@@ -69,7 +69,7 @@
 
   <div class="buttons">
     <button class="add-new" on:click={addNew}>Add New</button>
-    <button class="download" on:click={download}>Download</button>
+    <button on:click={download}>Download</button>
   </div>
 </main>
 
@@ -86,20 +86,10 @@
   }
 
   .add-new {
-    color: hsl(0, 0%, 10%);
-    background-color: hsl(17, 100%, 75%);
+    background-color: hsl(100, 75%, 85%);
 
     &:hover {
-      background-color: rgb(212, 136, 106);
-    }
-  }
-
-  .download {
-    color: hsl(0, 0%, 10%);
-    background-color: hsl(195, 50%, 80%);
-
-    &:hover {
-      background-color: hsl(193, 25%, 65%);
+      background-color: hsl(100, 25%, 65%);
     }
   }
 </style>

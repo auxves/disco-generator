@@ -1,5 +1,7 @@
+@import "@fontsource/inter/variable.css";
+
 :root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-family: InterVariable, Avenir, Helvetica, Arial, sans-serif;
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
@@ -54,12 +56,12 @@ button {
   font-family: inherit;
   cursor: pointer;
 
-  color: hsl(0, 0%, 85%);
-  background-color: hsl(0, 0%, 10%);
+  color: hsl(0, 0%, 20%);
+  background-color: hsl(195, 75%, 80%);
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: hsl(0, 0%, 7%);
+    background-color: hsl(195, 30%, 65%);
   }
 }
 
@@ -79,7 +81,7 @@ input[type="text"] {
 
   color: var(--color);
   background-color: var(--background-color);
- 
+
   transition: outline 0.2s;
 }
 
