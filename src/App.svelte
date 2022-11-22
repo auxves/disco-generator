@@ -63,6 +63,13 @@
 
   <h2>Discs</h2>
 
+  <!-- prettier-ignore -->
+  <div class="info">
+    Sounds must be .ogg files with one audio channel (mono).
+    Click <a href="https://convertio.co/mp3-ogg" target="_blank" rel="noreferrer">here</a>
+    for a tool to convert your sounds to the proper format.
+  </div>
+
   {#each discs as disc, i (disc)}
     <DiscEntry bind:disc on:remove={() => remove(i)} />
   {/each}
