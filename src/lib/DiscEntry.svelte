@@ -28,6 +28,7 @@
     <label for="">Sound</label>
     <input
       type="file"
+      accept=".ogg, audio/ogg"
       on:change={(event) => (disc.sound = event.currentTarget.files[0])}
     />
   </div>
@@ -36,6 +37,7 @@
     <label for="">Texture</label>
     <input
       type="file"
+      accept="image/png"
       on:change={(event) => (disc.texture = event.currentTarget.files[0])}
     />
   </div>
