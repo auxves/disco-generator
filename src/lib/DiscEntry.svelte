@@ -1,10 +1,27 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte"
+  import { createEventDispatcher, onMount } from "svelte"
   import type { Disc } from "../types"
 
   const dispatch = createEventDispatcher()
 
   export let disc: Disc
+
+  let textureInput: HTMLInputElement
+  let soundInput: HTMLInputElement
+
+  onMount(() => {
+    if (textureInput && disc.texture) {
+      let container = new DataTransfer()
+      container.items.add(disc.texture)
+      textureInput.files = container.files
+    }
+
+    if (soundInput && disc.sound) {
+      let container = new DataTransfer()
+      container.items.add(disc.sound)
+      soundInput.files = container.files
+    }
+  })
 </script>
 
 <main>
@@ -25,20 +42,30 @@
   </div>
 
   <div>
-    <label for="">Sound</label>
+    <label for=""
+      >Sound {soundInput?.files.length ?? 0 !== 0
+        ? ` (${disc.sound.name})`
+        : ""}</label
+    >
     <input
       type="file"
       accept=".ogg, audio/ogg"
       on:change={(event) => (disc.sound = event.currentTarget.files[0])}
+      bind:this={soundInput}
     />
   </div>
 
   <div>
-    <label for="">Texture</label>
+    <label for=""
+      >Texture {textureInput?.files.length ?? 0 !== 0
+        ? ` (${disc.texture.name})`
+        : ""}</label
+    >
     <input
       type="file"
       accept="image/png"
       on:change={(event) => (disc.texture = event.currentTarget.files[0])}
+      bind:this={textureInput}
     />
   </div>
 </main>
@@ -61,14 +88,11 @@
     justify-content: center;
 
     background-color: hsl(0, 50%, 70%);
-    color: black;
 
     width: 32px;
     height: 100%;
     border-radius: 8px;
     position: absolute;
-
-    transition: background-color 0.2s;
 
     &:hover {
       background-color: hsl(0, 30%, 55%);

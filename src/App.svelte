@@ -1,7 +1,8 @@
 <script lang="ts">
   import DiscEntry from "./lib/DiscEntry.svelte"
-  import { generate } from "./logic"
-  import type { Disc } from "./types"
+  import DraftsMenu from "./lib/DraftsMenu.svelte"
+  import { generate, save } from "./logic"
+  import type { Disc, Draft } from "./types"
 
   let name = ""
   let id = ""
@@ -15,10 +16,27 @@
       id,
       name,
       description,
+    }).catch((err: ErrorEvent) => {
+      console.log(err)
     })
   }
 
-  function addNew() {
+  function saveDraft() {
+    if (id === "" || name === "") return
+
+    save({
+      discs,
+      id,
+      name,
+      description,
+    })
+  }
+
+  function loadDraft(event: CustomEvent<Draft>) {
+    ;({ id, name, description, discs } = event.detail)
+  }
+
+  function newDisc() {
     discs = [...discs, { id: "", name: "" }]
   }
 
@@ -29,7 +47,10 @@
 </script>
 
 <main>
-  <h1>Disco Generator</h1>
+  <header>
+    <h1>Disco Generator</h1>
+    <DraftsMenu on:load={loadDraft} />
+  </header>
 
   <div>
     <label for="name">Name</label>
@@ -74,8 +95,10 @@
     <DiscEntry bind:disc on:remove={() => remove(i)} />
   {/each}
 
-  <div class="buttons">
-    <button class="add-new" on:click={addNew}>Add New</button>
+  <button id="new-disc" on:click={newDisc}>New Disc</button>
+
+  <div id="buttons">
+    <button id="save-draft" on:click={saveDraft}>Save Draft</button>
     <button on:click={download}>Download</button>
   </div>
 </main>
@@ -84,6 +107,11 @@
   main {
     display: grid;
     gap: 1.5rem;
+  }
+
+  header {
+    display: grid;
+    gap: 1rem;
   }
 
   h1 {
@@ -98,17 +126,25 @@
     margin: 0;
   }
 
-  .buttons {
+  #buttons {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
   }
 
-  .add-new {
+  #new-disc {
     background-color: hsl(100, 75%, 85%);
 
     &:hover {
       background-color: hsl(100, 25%, 65%);
+    }
+  }
+
+  #save-draft {
+    background-color: hsl(66, 100%, 90%);
+
+    &:hover {
+      background-color: hsl(66, 30%, 75%);
     }
   }
 </style>

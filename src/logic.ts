@@ -1,15 +1,8 @@
 import { downloadZip } from "client-zip"
-import type { Disc } from "./types"
+import type { Disc, Draft, StoredFile } from "./types"
 
-type GenerateOptions = {
-  discs: Disc[]
-  id: string
-  name: string
-  description: string
-}
-
-export async function generate(options: GenerateOptions) {
-  const { discs, id, name, description } = options
+export async function generate(draft: Draft) {
+  const { discs, id, name, description } = draft
 
   const fabricModJson = {
     name: "fabric.mod.json",
@@ -88,4 +81,55 @@ export async function generate(options: GenerateOptions) {
   link.remove()
 
   URL.revokeObjectURL(blobUrl)
+}
+
+function storeFile(file: File): Promise<StoredFile> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+
+    reader.onloadend = () =>
+      resolve({
+        name: file.name,
+        type: file.type,
+        url: reader.result as string,
+      })
+
+    reader.onerror = reject
+
+    reader.readAsDataURL(file)
+  })
+}
+
+async function restoreFile(stored: StoredFile): Promise<File> {
+  const response = await fetch(stored.url)
+  const buffer = await response.arrayBuffer()
+  return new File([buffer], stored.name, { type: stored.type })
+}
+
+export async function save(draft: Draft) {
+  const discs = await Promise.all(
+    draft.discs.map(async (disc) => ({
+      ...disc,
+      texture: await storeFile(disc.texture),
+      sound: await storeFile(disc.sound),
+    }))
+  )
+
+  const json = JSON.stringify({ ...draft, discs })
+
+  localStorage.setItem(draft.id, json)
+}
+
+export async function load(id: string): Promise<Draft> {
+  const x = JSON.parse(localStorage.getItem(id))
+
+  const discs: Disc[] = await Promise.all(
+    x.discs.map(async (disc) => ({
+      ...disc,
+      texture: await restoreFile(disc.texture),
+      sound: await restoreFile(disc.sound),
+    }))
+  )
+
+  return { ...x, discs }
 }
