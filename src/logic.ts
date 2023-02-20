@@ -1,11 +1,5 @@
 import { downloadZip } from "client-zip"
-import type {
-  Disc,
-  Draft,
-  SerializedDisc,
-  SerializedDraft,
-  SerializedFile,
-} from "./types"
+import type { Disc, Draft } from "./types"
 
 export async function generate(draft: Draft) {
   if (!isDraftComplete(draft))
@@ -90,67 +84,6 @@ export async function generate(draft: Draft) {
   link.remove()
 
   URL.revokeObjectURL(blobUrl)
-}
-
-function serializeFile(file: File): Promise<SerializedFile> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-
-    reader.onloadend = () =>
-      resolve({
-        name: file.name,
-        type: file.type,
-        url: reader.result as string,
-      })
-
-    reader.onerror = reject
-
-    reader.readAsDataURL(file)
-  })
-}
-
-async function restoreFile(stored: SerializedFile): Promise<File> {
-  const response = await fetch(stored.url)
-  const buffer = await response.arrayBuffer()
-  return new File([buffer], stored.name, { type: stored.type })
-}
-
-export async function save(draft: Draft): Promise<SerializedDraft> {
-  if (draft.id === "") throw new Error("invalid draft")
-
-  const discs = await Promise.all(
-    draft.discs.map(async (disc) => {
-      return {
-        ...disc,
-        texture: disc.texture && (await serializeFile(disc.texture)),
-        sound: disc.sound && (await serializeFile(disc.sound)),
-      } as SerializedDisc
-    })
-  )
-
-  let serialized = { ...draft, discs }
-
-  const json = JSON.stringify(serialized)
-  localStorage.setItem(draft.id, json)
-
-  return serialized
-}
-
-export async function load(id: string): Promise<Draft> {
-  const json = localStorage.getItem(id)
-  if (json === null) throw new Error(`draft '${id}' does not exist`)
-
-  const draft: SerializedDraft = JSON.parse(json)
-
-  const discs: Disc[] = await Promise.all(
-    draft.discs.map(async (disc) => ({
-      ...disc,
-      texture: disc.texture && (await restoreFile(disc.texture)),
-      sound: disc.sound && (await restoreFile(disc.sound)),
-    }))
-  )
-
-  return { ...draft, discs }
 }
 
 export function isDraftComplete(draft: Draft) {

@@ -1,12 +1,10 @@
 <script lang="ts">
-  import type { Disc, Draft } from "../types"
+  import { createEventDispatcher } from "svelte"
+  import type { Draft } from "../types"
 
   export let drafts: Draft[]
 
-  export let id: string
-  export let name: string
-  export let description: string
-  export let discs: Disc[]
+  const dispatch = createEventDispatcher()
 
   let open = false
 
@@ -14,13 +12,6 @@
 
   function toggle() {
     open = !open
-  }
-
-  function remove(index: number) {
-    localStorage.removeItem(drafts[index].id)
-
-    drafts.splice(index, 1)
-    drafts = drafts
   }
 </script>
 
@@ -32,14 +23,16 @@
         <div>
           <button
             on:click={() => {
-              ;({ id, name, description, discs } = draft)
+              dispatch("load", draft)
               toggle()
             }}
           >
             {draft.name}
           </button>
           <span>{draft.description}</span>
-          <button class="remove" on:click={() => remove(i)}>✕</button>
+          <button class="remove" on:click={() => dispatch("remove", i)}
+            >✕</button
+          >
         </div>
       {/each}
     {:else}

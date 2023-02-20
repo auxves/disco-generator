@@ -2,8 +2,11 @@
   import { onMount } from "svelte"
   import DiscEntry from "./lib/DiscEntry.svelte"
   import DraftsMenu from "./lib/DraftsMenu.svelte"
-  import { generate, load, save } from "./logic"
+  import { generate } from "./logic"
+  import { connect, type DB } from "./db"
   import type { Disc, Draft } from "./types"
+
+  let db: DB
 
   let name = ""
   let id = ""
@@ -22,7 +25,7 @@
       description,
     } as Draft
 
-    save(draft)
+    db.put(draft)
       .then(() => {
         just_saved = true
         setTimeout(() => {
@@ -44,7 +47,8 @@
   let drafts: Draft[] = []
 
   onMount(async () => {
-    drafts = await Promise.all(Object.keys(localStorage).map(load))
+    db = await connect()
+    drafts = await db.getAll()
   })
 
   function newDisc() {
@@ -61,7 +65,20 @@
 <main>
   <header>
     <h1>Disco Generator</h1>
-    <DraftsMenu bind:drafts bind:id bind:name bind:description bind:discs />
+    <DraftsMenu
+      bind:drafts
+      on:load={(event) => {
+        ;({ id, name, description, discs } = structuredClone(event.detail))
+      }}
+      on:remove={async (event) => {
+        const i = event.detail
+
+        await db.delete(drafts[i].id)
+
+        drafts.splice(i, 1)
+        drafts = drafts
+      }}
+    />
   </header>
 
   <div>
@@ -101,6 +118,12 @@
     Sounds must be .ogg files with one audio channel (mono).
     Click <a href="https://convertio.co/mp3-ogg" target="_blank" rel="noreferrer">here</a>
     for a tool to convert your sounds to the proper format.
+  </div>
+
+  <!-- prettier-ignore -->
+  <div class="info">
+    Once attached, sounds and textures must not be moved from their
+    locations. Otherwise, you will have to re-select them.
   </div>
 
   {#each discs as disc, i (disc)}
