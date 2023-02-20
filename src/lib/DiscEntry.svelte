@@ -6,22 +6,14 @@
 
   export let disc: Disc
 
-  let textureInput: HTMLInputElement
-  let soundInput: HTMLInputElement
+  let textures: FileList
+  let sounds: FileList
 
-  onMount(() => {
-    if (textureInput && disc.texture) {
-      let container = new DataTransfer()
-      container.items.add(disc.texture)
-      textureInput.files = container.files
-    }
+  $: if (sounds?.length === 1) disc.sound = sounds[0]
+  $: if (textures?.length === 1) disc.texture = textures[0]
 
-    if (soundInput && disc.sound) {
-      let container = new DataTransfer()
-      container.items.add(disc.sound)
-      soundInput.files = container.files
-    }
-  })
+  $: textureLabel = disc.texture ? ` (${disc.texture.name})` : ""
+  $: soundLabel = disc.sound ? ` (${disc.sound.name})` : ""
 </script>
 
 <main>
@@ -42,31 +34,13 @@
   </div>
 
   <div>
-    <label for=""
-      >Sound {soundInput?.files.length ?? 0 !== 0
-        ? ` (${disc.sound.name})`
-        : ""}</label
-    >
-    <input
-      type="file"
-      accept=".ogg, audio/ogg"
-      on:change={(event) => (disc.sound = event.currentTarget.files[0])}
-      bind:this={soundInput}
-    />
+    <label for="">Sound {soundLabel}</label>
+    <input type="file" accept=".ogg, audio/ogg" bind:files={sounds} />
   </div>
 
   <div>
-    <label for=""
-      >Texture {textureInput?.files.length ?? 0 !== 0
-        ? ` (${disc.texture.name})`
-        : ""}</label
-    >
-    <input
-      type="file"
-      accept="image/png"
-      on:change={(event) => (disc.texture = event.currentTarget.files[0])}
-      bind:this={textureInput}
-    />
+    <label for="">Texture {textureLabel}</label>
+    <input type="file" accept="image/png" bind:files={textures} />
   </div>
 </main>
 

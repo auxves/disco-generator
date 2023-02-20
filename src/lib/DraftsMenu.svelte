@@ -1,18 +1,16 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from "svelte"
-  import { load } from "../logic"
-  import type { Draft } from "../types"
+  import type { Disc, Draft } from "../types"
 
-  const dispatch = createEventDispatcher()
+  export let drafts: Draft[]
+
+  export let id: string
+  export let name: string
+  export let description: string
+  export let discs: Disc[]
 
   let open = false
-  let drafts: Draft[] = []
 
   $: symbol = open ? "↑" : "↓"
-
-  onMount(async () => {
-    drafts = await Promise.all(Object.keys(localStorage).map(load))
-  })
 
   function toggle() {
     open = !open
@@ -34,7 +32,7 @@
         <div>
           <button
             on:click={() => {
-              dispatch("load", draft)
+              ;({ id, name, description, discs } = draft)
               toggle()
             }}
           >

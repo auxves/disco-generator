@@ -1,14 +1,37 @@
 <script lang="ts">
+  import { onMount } from "svelte"
   import DiscEntry from "./lib/DiscEntry.svelte"
   import DraftsMenu from "./lib/DraftsMenu.svelte"
-  import { generate, save } from "./logic"
+  import { generate, load, save } from "./logic"
   import type { Disc, Draft } from "./types"
 
   let name = ""
   let id = ""
   let description = ""
-
   let discs: Disc[] = []
+
+  let just_saved = false
+
+  function saveDraft() {
+    const draft = {
+      discs,
+      id,
+      name,
+      description,
+    } as Draft
+
+    save(draft)
+      .then(() => {
+        just_saved = true
+        setTimeout(() => {
+          just_saved = false
+        }, 2000)
+      })
+      .catch(alert)
+
+    drafts.push(draft)
+    drafts = drafts
+  }
 
   function download() {
     generate({
@@ -16,28 +39,18 @@
       id,
       name,
       description,
-    }).catch((err: ErrorEvent) => {
-      console.log(err)
-    })
+    }).catch(alert)
   }
 
-  function saveDraft() {
-    if (id === "" || name === "") return
+  let drafts: Draft[] = []
 
-    save({
-      discs,
-      id,
-      name,
-      description,
-    })
-  }
-
-  function loadDraft(event: CustomEvent<Draft>) {
-    ;({ id, name, description, discs } = event.detail)
-  }
+  onMount(async () => {
+    drafts = await Promise.all(Object.keys(localStorage).map(load))
+  })
 
   function newDisc() {
-    discs = [...discs, { id: "", name: "" }]
+    discs.push({ id: "", name: "", sound: undefined, texture: undefined })
+    discs = discs
   }
 
   function remove(index: number) {
@@ -49,18 +62,8 @@
 <main>
   <header>
     <h1>Disco Generator</h1>
-    <DraftsMenu on:load={loadDraft} />
+    <DraftsMenu bind:drafts bind:id bind:name bind:description bind:discs />
   </header>
-
-  <div>
-    <label for="name">Name</label>
-    <input
-      id="name"
-      type="text"
-      placeholder="What will you call your addon?"
-      bind:value={name}
-    />
-  </div>
 
   <div>
     <label for="identifier">Identifier</label>
@@ -69,6 +72,16 @@
       type="text"
       placeholder="Give it a unique identifier (this will be the file name)"
       bind:value={id}
+    />
+  </div>
+
+  <div>
+    <label for="name">Name</label>
+    <input
+      id="name"
+      type="text"
+      placeholder="What will you call your addon?"
+      bind:value={name}
     />
   </div>
 
@@ -98,7 +111,12 @@
   <button id="new-disc" on:click={newDisc}>New Disc</button>
 
   <div id="buttons">
-    <button id="save-draft" on:click={saveDraft}>Save Draft</button>
+    {#if just_saved}
+      <button id="save-draft" on:click={saveDraft}>Saved Draft ✔</button>
+    {:else}
+      <button id="save-draft" on:click={saveDraft}>Save Draft</button>
+    {/if}
+
     <button on:click={download}>Download</button>
   </div>
 </main>
