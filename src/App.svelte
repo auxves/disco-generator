@@ -22,15 +22,15 @@
 
     save(draft)
       .then(() => {
+        drafts.push(draft)
+        drafts = drafts
+
         just_saved = true
         setTimeout(() => {
           just_saved = false
-        }, 2000)
+        }, 3500)
       })
       .catch(alert)
-
-    drafts.push(draft)
-    drafts = drafts
   }
 
   function download() {
