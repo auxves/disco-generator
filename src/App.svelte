@@ -12,6 +12,8 @@
 
   let just_saved = false
 
+  $: saveMessage = just_saved ? "Saved Draft ✔" : "Save Draft"
+
   function saveDraft() {
     const draft = {
       discs,
@@ -22,13 +24,10 @@
 
     save(draft)
       .then(() => {
-        drafts.push(draft)
-        drafts = drafts
-
         just_saved = true
         setTimeout(() => {
           just_saved = false
-        }, 3500)
+        }, 3000)
       })
       .catch(alert)
   }
@@ -111,12 +110,7 @@
   <button id="new-disc" on:click={newDisc}>New Disc</button>
 
   <div id="buttons">
-    {#if just_saved}
-      <button id="save-draft" on:click={saveDraft}>Saved Draft ✔</button>
-    {:else}
-      <button id="save-draft" on:click={saveDraft}>Save Draft</button>
-    {/if}
-
+    <button id="save-draft" on:click={saveDraft}>{saveMessage}</button>
     <button on:click={download}>Download</button>
   </div>
 </main>
