@@ -86,7 +86,7 @@
     <input
       id="identifier"
       type="text"
-      placeholder="Give it a unique identifier (this will be the file name)"
+      placeholder="Come up with a unique identifier"
       bind:value={id}
     />
   </div>
@@ -96,7 +96,7 @@
     <input
       id="name"
       type="text"
-      placeholder="What will you call your addon?"
+      placeholder="Name your addon"
       bind:value={name}
     />
   </div>
