@@ -15,7 +15,18 @@
 
   let just_saved = false
 
-  $: saveMessage = just_saved ? "Saved Draft ✔" : "Save Draft"
+  $: saveMessage = just_saved ? "Draft Saved" : "Save Draft"
+
+  let drafts: Draft[] = []
+
+  async function reload() {
+    drafts = await db.getAll()
+  }
+
+  onMount(async () => {
+    db = await connect()
+    await reload()
+  })
 
   function saveDraft() {
     const draft = {
@@ -27,10 +38,12 @@
 
     db.put(draft)
       .then(() => {
+        reload()
+
         just_saved = true
         setTimeout(() => {
           just_saved = false
-        }, 3000)
+        }, 2000)
       })
       .catch(alert)
   }
@@ -43,13 +56,6 @@
       description,
     }).catch(alert)
   }
-
-  let drafts: Draft[] = []
-
-  onMount(async () => {
-    db = await connect()
-    drafts = await db.getAll()
-  })
 
   function newDisc() {
     discs.push({ id: "", name: "", sound: undefined, texture: undefined })
@@ -130,11 +136,13 @@
     <DiscEntry bind:disc on:remove={() => remove(i)} />
   {/each}
 
-  <button id="new-disc" on:click={newDisc}>New Disc</button>
+  <button class="large" id="new-disc" on:click={newDisc}>New Disc +</button>
 
   <div id="buttons">
-    <button id="save-draft" on:click={saveDraft}>{saveMessage}</button>
-    <button on:click={download}>Download</button>
+    <button class="large" id="save-draft" on:click={saveDraft}>
+      {saveMessage} ↑
+    </button>
+    <button class="large" on:click={download}>Download ↓</button>
   </div>
 </main>
 
@@ -168,6 +176,8 @@
   }
 
   #new-disc {
+    width: fit-content;
+
     background-color: hsl(100, 75%, 85%);
 
     &:hover {

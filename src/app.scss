@@ -7,7 +7,10 @@
   font-weight: 400;
 
   color: hsla(0, 0%, 85%);
-  background-color: hsl(0, 0%, 14%);
+  background-color: hsl(0, 0%, 2%);
+
+  background-image: url("/src/assets/background.svg");
+  background-repeat: repeat;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -50,6 +53,10 @@ button {
 
   &:hover {
     background-color: hsl(195, 30%, 65%);
+  }
+
+  &.large {
+    padding: 0.8rem 1rem;
   }
 }
 
