@@ -16,6 +16,9 @@ dist-ssr
 .vscode/*
 .idea
 .DS_Store
+.direnv
+.envrc
+.env
 *.suo
 *.ntvs*
 *.njsproj
