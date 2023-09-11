@@ -55,7 +55,6 @@ export function connect(): Promise<DB> {
 
     request.onupgradeneeded = (e: any) => {
       const db: IDBDatabase = e.target.result
-      console.log(db)
       db.createObjectStore("drafts", { keyPath: "id" })
     }
   })
