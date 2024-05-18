@@ -67,6 +67,28 @@ export async function generate(draft: Draft) {
     ),
   }
 
+  const discsTag = {
+    name: `data/${id}/tags/items/discs.json`,
+    input: JSON.stringify({
+      values: discs.map((disc) => ({
+        id: `${id}:${disc.id}`,
+        required: false,
+      })),
+    }),
+  }
+
+  const globalDiscsTag = {
+    name: `data/minecraft/tags/items/music_discs.json`,
+    input: JSON.stringify({
+      values: [{ id: `#${id}:discs`, required: false }],
+    }),
+  }
+
+  const manifest = {
+    name: `META-INF/MANIFEST.MF`,
+    input: `Manifest-Version: 1.0\nFabric-Loom-Mixin-Remap-Type: mixin`,
+  }
+
   const blob = await downloadZip([
     fabricModJson,
     soundsJson,
@@ -74,6 +96,9 @@ export async function generate(draft: Draft) {
     ...textures,
     ...models,
     translations,
+    discsTag,
+    globalDiscsTag,
+    manifest,
   ]).blob()
 
   const link = document.createElement("a")
