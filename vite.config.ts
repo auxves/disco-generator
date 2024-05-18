@@ -11,5 +11,12 @@ export default defineConfig({
     esbuildOptions: {
       target: "es2020",
     },
+    exclude: ["@ffmpeg/ffmpeg", "@ffmpeg/util"],
+  },
+  server: {
+    headers: {
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
+    },
   },
 })

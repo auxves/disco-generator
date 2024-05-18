@@ -1,11 +1,51 @@
 import { downloadZip } from "client-zip"
-import type { Disc, Draft } from "./types"
+import type { Disc, Draft, Resource } from "./types"
+
+import { FFmpeg } from "@ffmpeg/ffmpeg"
+import { fetchFile, toBlobURL } from "@ffmpeg/util"
+
+const ffmpeg = new FFmpeg()
+
+ffmpeg.on("log", ({ message }) => console.log(message))
 
 export async function generate(draft: Draft) {
   if (!isDraftComplete(draft))
     throw new Error("draft is not complete: missing fields")
 
-  const { discs, id, name, description } = draft
+  const { id, name, description } = draft
+
+  const baseURL = "https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm"
+
+  await ffmpeg.load({
+    coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
+    wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
+    workerURL: await toBlobURL(
+      `${baseURL}/ffmpeg-core.worker.js`,
+      "text/javascript"
+    ),
+  })
+
+  type FinalDisc = {
+    id: string
+    name: string
+    texture: Uint8Array
+    sound: Uint8Array
+    duration: number
+  }
+
+  const discs: FinalDisc[] = []
+
+  for (const { id, name, texture, sound: origSound } of draft.discs) {
+    const { sound, duration } = await convertSound(origSound!)
+
+    discs.push({
+      id,
+      name,
+      texture: await fetchFile(texture!),
+      sound,
+      duration,
+    })
+  }
 
   const fabricModJson = {
     name: "fabric.mod.json",
@@ -17,7 +57,10 @@ export async function generate(draft: Draft) {
       version: "1.0.0",
       custom: {
         disco: {
-          discs: discs.map((disc) => ({ id: disc.id, duration: 100 })),
+          discs: discs.map((disc) => ({
+            id: disc.id,
+            duration: disc.duration,
+          })),
         },
       },
     }),
@@ -43,10 +86,12 @@ export async function generate(draft: Draft) {
     input: disc.texture,
   }))
 
-  const sounds = discs.map((disc) => ({
-    name: `assets/${id}/sounds/${disc.id}.ogg`,
-    input: disc.sound,
-  }))
+  const soundFiles = await Promise.all(
+    discs.map(async (disc) => ({
+      name: `assets/${id}/sounds/${disc.id}.ogg`,
+      input: disc.sound,
+    }))
+  )
 
   const models = discs.map((disc) => ({
     name: `assets/${id}/models/item/${disc.id}.json`,
@@ -92,7 +137,7 @@ export async function generate(draft: Draft) {
   const blob = await downloadZip([
     fabricModJson,
     soundsJson,
-    ...sounds,
+    ...soundFiles,
     ...textures,
     ...models,
     translations,
@@ -124,4 +169,43 @@ export function isDiscComplete(disc: Disc) {
     disc.sound !== undefined &&
     disc.texture !== undefined
   )
+}
+
+export function getFilename(input: Resource) {
+  if (input instanceof File) return input.name
+  else return input.split("/").at(-1)!
+}
+
+async function convertSound(input: Resource) {
+  const filename = getFilename(input)
+
+  await ffmpeg.writeFile(filename, await fetchFile(input))
+
+  let duration = 0
+
+  const calcDuration = ({ message }: any) => {
+    const match = message.match(/Duration: (\d{2}):(\d{2}):(\d{2})/)
+    if (match) {
+      const [, h, m, s] = match
+      duration = parseInt(h) * 3600 + parseInt(m) * 60 + parseInt(s)
+      ffmpeg.off("log", calcDuration)
+    }
+  }
+
+  ffmpeg.on("log", calcDuration)
+
+  await ffmpeg.exec(["-i", filename, "-ac", "1", `${filename}.out.ogg`])
+
+  let sound = await ffmpeg.readFile(`${filename}.out.ogg`)
+
+  if (typeof sound === "string") {
+    sound = new TextEncoder().encode(sound)
+  }
+
+  await ffmpeg.deleteFile(filename)
+  await ffmpeg.deleteFile(`${filename}.out.ogg`)
+
+  ffmpeg.off("log", calcDuration)
+
+  return { sound, duration }
 }

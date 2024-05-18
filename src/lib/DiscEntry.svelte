@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte"
   import type { Disc } from "../types"
+  import { getFilename } from "../logic"
 
   const dispatch = createEventDispatcher()
 
@@ -12,8 +13,8 @@
   $: if (sounds?.length === 1) disc.sound = sounds[0]
   $: if (textures?.length === 1) disc.texture = textures[0]
 
-  $: textureLabel = disc.texture ? ` (${disc.texture.name})` : ""
-  $: soundLabel = disc.sound ? ` (${disc.sound.name})` : ""
+  $: textureLabel = disc.texture ? ` (${getFilename(disc.texture)})` : ""
+  $: soundLabel = disc.sound ? ` (${getFilename(disc.sound)})` : ""
 </script>
 
 <main>
@@ -35,7 +36,7 @@
 
   <div>
     <label for="">Sound {soundLabel}</label>
-    <input type="file" accept=".ogg, audio/ogg" bind:files={sounds} />
+    <input type="file" accept="audio/*" bind:files={sounds} />
   </div>
 
   <div>
