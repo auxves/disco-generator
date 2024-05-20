@@ -6,10 +6,11 @@
   import type { Draft } from "$lib/types"
 
   import { buttonVariants } from "$lib/components/ui/button"
+  import { Badge } from "$lib/components/ui/badge"
   import * as Card from "$lib/components/ui/card"
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu"
 
-  import { Circle, Ellipsis, Trash } from "lucide-svelte"
+  import { DiscIcon, Ellipsis, Trash } from "lucide-svelte"
 
   import NewDraftDialog from "./NewDraftDialog.svelte"
   import { confirm } from "$lib/components/Confirm.svelte"
@@ -71,8 +72,11 @@
         </Card.Header>
         <Card.Content>
           <div class="flex space-x-4 text-sm text-muted-foreground">
+            <Badge class="font-mono" variant="secondary">
+              {draft.namespace}
+            </Badge>
             <div class="flex items-center">
-              <Circle class="mr-1 h-3 w-3 outline-primary" />
+              <DiscIcon class="mr-1 h-4 w-4" />
               {#await discCount(draft) then count}
                 {count} Disc{count === 1 ? "" : "s"}
               {/await}
