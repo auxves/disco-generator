@@ -127,20 +127,18 @@ async function toBlobURL(url: string, mimeType: string) {
   return URL.createObjectURL(blob)
 }
 
+import CORE_URL from "@ffmpeg/core?url"
+import WASM_URL from "@ffmpeg/core/wasm?url"
+
 export async function convertSound(input: File) {
   if (!ffmpeg) {
     ffmpeg = new FFmpeg()
 
     ffmpeg.on("log", ({ message }) => console.log(message))
 
-    const baseURL = "https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm"
-
     await ffmpeg.load({
-      coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
-      wasmURL: await toBlobURL(
-        `${baseURL}/ffmpeg-core.wasm`,
-        "application/wasm",
-      ),
+      coreURL: CORE_URL,
+      wasmURL: WASM_URL,
     })
   }
 
