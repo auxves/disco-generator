@@ -4,9 +4,11 @@
   import { zod, zodClient } from "sveltekit-superforms/adapters"
 
   import type { Disc } from "$lib/types"
-  import { convertSound } from "$lib/logic"
+  import { processAudio } from "$lib/audio"
+  import { fetchProxied } from "$lib/utils"
 
   import * as Form from "$lib/components/ui/form"
+  import * as Tabs from "$lib/components/ui/tabs"
   import { Input, FileInput } from "$lib/components/ui/input"
 
   import { LoaderCircle } from "lucide-svelte"
@@ -19,6 +21,12 @@
 
   const { data, owner, onSubmit }: Props = $props()
 
+  const soundSchema = z
+    .instanceof(File, { message: "Sound is required." })
+    .or(z.string().url())
+
+  const textureSchema = z.instanceof(File, { message: "Texture is required." })
+
   const schema = z.object({
     identifier: z
       .string({ required_error: "Identifier is required." })
@@ -27,15 +35,13 @@
         /^[a-z0-9-_]*$/,
         "Identifier can only contain lowercase letters, numbers, dashes, and underscores.",
       ),
+
     name: z
       .string({ required_error: "Name is required." })
       .min(1, "Name must be at least one character long."),
-    sound: data
-      ? z.instanceof(File).optional()
-      : z.instanceof(File, { message: "Sound is required." }),
-    texture: data
-      ? z.instanceof(File).optional()
-      : z.instanceof(File, { message: "Texture is required." }),
+
+    sound: data ? soundSchema.optional() : soundSchema,
+    texture: data ? textureSchema.optional() : textureSchema,
   })
 
   let loading = $state(false)
@@ -47,23 +53,29 @@
       validators: zodClient(schema),
       async onUpdate({ form }) {
         if (form.valid) {
-          const { identifier, name, sound, texture } = form.data
-
           loading = true
+
+          let { identifier, name, sound, texture } = form.data
+
+          if (typeof sound === "string") {
+            const res = await fetchProxied(sound)
+            const blob = await res.blob()
+            sound = new File([blob], "sound.opus")
+          }
 
           if (data) {
             onSubmit({
               ...data,
               identifier,
               name,
-              ...(sound ? await convertSound(sound) : {}),
+              ...(sound ? await processAudio(sound) : {}),
               ...(texture ? { texture: await texture.arrayBuffer() } : {}),
             })
           } else {
             onSubmit({
               identifier,
               name,
-              ...(await convertSound(sound!)),
+              ...(await processAudio(sound!)),
               texture: await texture!.arrayBuffer(),
               draft: owner,
             })
@@ -117,12 +129,39 @@
   <Form.Field {form} name="sound">
     <Form.Control let:attrs>
       <Form.Label>Sound</Form.Label>
-      <FileInput
-        autocomplete="off"
-        accept="audio/*"
-        {...attrs}
-        bind:files={$sound}
-      />
+
+      <Tabs.Root
+        value="upload"
+        onValueChange={() => ($formData.sound = undefined)}
+      >
+        <Tabs.List class="grid w-full grid-cols-2">
+          <Tabs.Trigger value="upload">Upload</Tabs.Trigger>
+          <Tabs.Trigger value="url">From URL</Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="upload" class="space-y-2">
+          <FileInput
+            autocomplete="off"
+            accept="audio/*"
+            {...attrs}
+            bind:files={$sound}
+          />
+          <Form.Description>
+            The chosen file will automatically be converted to the right format.
+          </Form.Description>
+        </Tabs.Content>
+        <Tabs.Content value="url" class="space-y-2">
+          <Input
+            placeholder="https://www.youtube.com/watch?v=mukiMaOSLEs"
+            autocomplete="off"
+            class="max-sm:text-base"
+            {...attrs}
+            bind:value={$formData.sound}
+          />
+          <Form.Description>
+            Direct links to audio files, as well as YouTube URLs, are supported.
+          </Form.Description>
+        </Tabs.Content>
+      </Tabs.Root>
     </Form.Control>
     <Form.FieldErrors />
   </Form.Field>
@@ -137,6 +176,9 @@
         bind:files={$texture}
       />
     </Form.Control>
+    <Form.Description>
+      The texture of the disc. It must be a png file.
+    </Form.Description>
     <Form.FieldErrors />
   </Form.Field>
 

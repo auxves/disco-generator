@@ -60,3 +60,13 @@ export const flyAndScale = (
     easing: cubicOut,
   }
 }
+
+import { dev } from "$app/environment"
+
+export async function fetchProxied(url: string) {
+  const proxy = dev
+    ? "http://localhost:8787"
+    : "https://disco-proxy-prod.shiny-bar-5c4f.workers.dev"
+
+  return fetch(`${proxy}/download?target=${encodeURIComponent(url)}`)
+}

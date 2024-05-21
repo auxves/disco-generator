@@ -6,7 +6,7 @@
   let current: Disc | undefined = $state()
   let paused = $state(true)
 
-  export function play(disc: Disc) {
+  export async function play(disc: Disc) {
     if (current?.sound !== disc.sound) {
       if (audio.src) URL.revokeObjectURL(audio.src)
       current = disc
