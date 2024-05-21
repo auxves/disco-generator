@@ -47,7 +47,11 @@
 
 <DropdownMenu.Root>
   <DropdownMenu.Trigger
-    class={buttonVariants({ variant: "ghost", size: "icon" })}
+    class={buttonVariants({
+      variant: "ghost",
+      size: "icon",
+      class: "sm:ml-auto",
+    })}
   >
     <Ellipsis class="size-4" />
     <span class="sr-only">More</span>

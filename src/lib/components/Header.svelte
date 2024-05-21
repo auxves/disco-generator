@@ -13,7 +13,7 @@
   </a>
 
   <nav
-    class="flex items-center space-x-6 mx-6 uppercase font-medium text-sm text-muted-foreground"
+    class="flex items-center space-x-6 mx-6 uppercase font-medium text-sm text-muted-foreground tracking-widest"
   >
     <Slash class="opacity-40" />
     <a href="/" class="last:text-primary hover:text-primary transition-colors">

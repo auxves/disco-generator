@@ -3,6 +3,7 @@
 
   import Confirm from "$lib/components/Confirm.svelte"
   import Header from "$lib/components/Header.svelte"
+  import AudioPlayer from "$lib/components/AudioPlayer.svelte"
 
   const { children } = $props()
 </script>
@@ -12,7 +13,7 @@
     name="description"
     content="Disco Generator lets you create your own Disco addon using a graphical interface."
   />
-  <title>Disco Generator</title>
+  <title>Disco</title>
 </svelte:head>
 
 <Header />
@@ -22,3 +23,4 @@
 </main>
 
 <Confirm />
+<AudioPlayer />

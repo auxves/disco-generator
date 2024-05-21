@@ -88,6 +88,7 @@
       <Input
         placeholder="Artist - Song"
         autocomplete="off"
+        class="max-sm:text-base"
         {...attrs}
         bind:value={$formData.name}
       />
@@ -99,7 +100,13 @@
   <Form.Field {form} name="identifier">
     <Form.Control let:attrs>
       <Form.Label>Identifier</Form.Label>
-      <Input {...attrs} autocomplete="off" bind:value={$formData.identifier} />
+      <Input
+        placeholder="example_disc"
+        autocomplete="off"
+        class="max-sm:text-base"
+        {...attrs}
+        bind:value={$formData.identifier}
+      />
     </Form.Control>
     <Form.Description>
       This identifier must be unique within the addon.
@@ -111,9 +118,9 @@
     <Form.Control let:attrs>
       <Form.Label>Sound</Form.Label>
       <FileInput
-        {...attrs}
         autocomplete="off"
         accept="audio/*"
+        {...attrs}
         bind:files={$sound}
       />
     </Form.Control>
@@ -124,9 +131,9 @@
     <Form.Control let:attrs>
       <Form.Label>Texture</Form.Label>
       <FileInput
-        {...attrs}
         autocomplete="off"
         accept="image/png"
+        {...attrs}
         bind:files={$texture}
       />
     </Form.Control>

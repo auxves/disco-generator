@@ -48,6 +48,7 @@
       <Input
         placeholder="Example Music Discs"
         autocomplete="off"
+        class="max-sm:text-base"
         {...attrs}
         bind:value={$formData.name}
       />
@@ -62,6 +63,7 @@
       <Input
         placeholder="example-music-discs"
         autocomplete="off"
+        class="max-sm:text-base"
         {...attrs}
         bind:value={$formData.namespace}
       />
@@ -77,6 +79,7 @@
       <Form.Label>Description</Form.Label>
       <Input
         placeholder="This disco addon..."
+        class="max-sm:text-base"
         {...attrs}
         bind:value={$formData.description}
       />
