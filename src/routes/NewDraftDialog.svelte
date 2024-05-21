@@ -16,7 +16,7 @@
     New
   </Dialog.Trigger>
 
-  <Dialog.Content class="rounded-lg max-w-[80%] md:max-w-[500px]">
+  <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title>Start a new draft</Dialog.Title>
       <Dialog.Description>

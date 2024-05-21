@@ -12,9 +12,9 @@
   import { Download } from "lucide-svelte"
 
   import DiscCard from "$lib/components/DiscCard.svelte"
+  import DraftOptionsMenu from "$lib/components/DraftOptionsMenu.svelte"
 
   import NewDiscDialog from "./NewDiscDialog.svelte"
-  import DraftOptionsMenu from "./DraftOptionsMenu.svelte"
 
   const { draft_id } = $page.params as import("./$types").RouteParams
 

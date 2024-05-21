@@ -4,8 +4,7 @@
   import { zod, zodClient } from "sveltekit-superforms/adapters"
 
   import type { Disc } from "$lib/types"
-  import { processAudio } from "$lib/audio"
-  import { fetchProxied } from "$lib/utils"
+  import { processAudio, processImage } from "$lib/ffmpeg"
 
   import * as Form from "$lib/components/ui/form"
   import * as Tabs from "$lib/components/ui/tabs"
@@ -25,7 +24,9 @@
     .instanceof(File, { message: "Sound is required." })
     .or(z.string().url())
 
-  const textureSchema = z.instanceof(File, { message: "Texture is required." })
+  const textureSchema = z
+    .instanceof(File, { message: "Texture is required." })
+    .or(z.string().url())
 
   const schema = z.object({
     identifier: z
@@ -57,26 +58,20 @@
 
           let { identifier, name, sound, texture } = form.data
 
-          if (typeof sound === "string") {
-            const res = await fetchProxied(sound)
-            const blob = await res.blob()
-            sound = new File([blob], "sound.opus")
-          }
-
           if (data) {
             onSubmit({
               ...data,
               identifier,
               name,
               ...(sound ? await processAudio(sound) : {}),
-              ...(texture ? { texture: await texture.arrayBuffer() } : {}),
+              ...(texture ? await processImage(texture) : {}),
             })
           } else {
             onSubmit({
               identifier,
               name,
               ...(await processAudio(sound!)),
-              texture: await texture!.arrayBuffer(),
+              ...(await processImage(texture!)),
               draft: owner,
             })
           }
@@ -169,16 +164,40 @@
   <Form.Field {form} name="texture">
     <Form.Control let:attrs>
       <Form.Label>Texture</Form.Label>
-      <FileInput
-        autocomplete="off"
-        accept="image/png"
-        {...attrs}
-        bind:files={$texture}
-      />
+
+      <Tabs.Root
+        value="upload"
+        onValueChange={() => ($formData.texture = undefined)}
+      >
+        <Tabs.List class="grid w-full grid-cols-2">
+          <Tabs.Trigger value="upload">Upload</Tabs.Trigger>
+          <Tabs.Trigger value="url">From URL</Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="upload" class="space-y-2">
+          <FileInput
+            autocomplete="off"
+            accept="image/*"
+            {...attrs}
+            bind:files={$texture}
+          />
+          <Form.Description>
+            The chosen file will automatically be converted to the right format.
+          </Form.Description>
+        </Tabs.Content>
+        <Tabs.Content value="url" class="space-y-2">
+          <Input
+            placeholder="https://disco.auxves.dev/favicon.png"
+            autocomplete="off"
+            class="max-sm:text-base"
+            {...attrs}
+            bind:value={$formData.texture}
+          />
+          <Form.Description>
+            Direct links to image files are supported.
+          </Form.Description>
+        </Tabs.Content>
+      </Tabs.Root>
     </Form.Control>
-    <Form.Description>
-      The texture of the disc. It must be a png file.
-    </Form.Description>
     <Form.FieldErrors />
   </Form.Field>
 

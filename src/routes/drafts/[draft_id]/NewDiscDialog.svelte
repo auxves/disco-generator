@@ -22,7 +22,7 @@
     <Plus class="mr-2 h-4 w-4" />
     Add
   </Dialog.Trigger>
-  <Dialog.Content class="rounded-lg max-w-[80%] md:max-w-[500px]">
+  <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title>Create a new disc</Dialog.Title>
       <Dialog.Description>

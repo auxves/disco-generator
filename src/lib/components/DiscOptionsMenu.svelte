@@ -26,7 +26,7 @@
 </script>
 
 <Dialog.Root bind:open>
-  <Dialog.Content class="rounded-lg max-w-[80%] md:max-w-[500px]">
+  <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title>Edit disc</Dialog.Title>
       <Dialog.Description>
