@@ -2,18 +2,17 @@ import { FFmpeg } from "@ffmpeg/ffmpeg"
 
 let ffmpeg: FFmpeg
 
-import CORE_URL from "@ffmpeg/core?url"
-import WASM_URL from "@ffmpeg/core/wasm?url"
-
 export async function processAudio(input: File) {
   if (!ffmpeg) {
     ffmpeg = new FFmpeg()
 
     ffmpeg.on("log", ({ message }) => console.log(message))
 
+    const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm"
+
     await ffmpeg.load({
-      coreURL: CORE_URL,
-      wasmURL: WASM_URL,
+      coreURL: `${baseURL}/ffmpeg-core.js`,
+      wasmURL: `${baseURL}/ffmpeg-core.wasm`,
     })
   }
 

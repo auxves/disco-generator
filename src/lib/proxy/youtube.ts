@@ -1,6 +1,4 @@
-import { headersFor } from "./utils"
-
-export const hosts = [
+const hosts = [
   "music.youtube.com",
   "www.youtube.com",
   "youtube.com",
@@ -13,8 +11,12 @@ function getFormat(data: any) {
   )
 }
 
-export async function handleDownload(url: URL, request: Request, env: Env) {
-  const id = url.searchParams.get("v") || url.pathname.slice(1)
+export function matches(url: URL) {
+  return hosts.includes(url.host)
+}
+
+export async function download(target: URL, request: Request) {
+  const id = target.searchParams.get("v") || target.pathname.slice(1)
 
   if (!id) {
     return new Response(null, {
@@ -48,7 +50,7 @@ export async function handleDownload(url: URL, request: Request, env: Env) {
     },
   })
 
-  const data = await res.json<any>()
+  const data = await res.json()
 
   const format = getFormat(data)
 
@@ -59,17 +61,9 @@ export async function handleDownload(url: URL, request: Request, env: Env) {
     })
   }
 
-  const audio = await fetch(format.url, {
+  return fetch(format.url, {
     headers: {
       range: `bytes=0-${format.contentLength}`,
-    },
-  })
-
-  return new Response(audio.body, {
-    ...audio,
-    headers: {
-      ...audio.headers,
-      ...headersFor(request, env),
     },
   })
 }
