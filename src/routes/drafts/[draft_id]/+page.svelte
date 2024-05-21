@@ -3,7 +3,7 @@
 
   import { page } from "$app/stores"
   import { db } from "$lib/db"
-  import { generate } from "$lib/logic"
+  import { generate } from "$lib/generation"
 
   import { Button } from "$lib/components/ui/button"
   import { Badge } from "$lib/components/ui/badge"

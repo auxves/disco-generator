@@ -60,3 +60,7 @@ export const flyAndScale = (
     easing: cubicOut,
   }
 }
+
+export async function fetchProxied(url: string) {
+  return fetch(`/api/download?target=${encodeURIComponent(url)}`)
+}

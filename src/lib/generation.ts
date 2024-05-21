@@ -1,7 +1,6 @@
 import { downloadZip } from "client-zip"
 import type { Draft } from "./types"
 
-import { FFmpeg } from "@ffmpeg/ffmpeg"
 import { db } from "./db"
 
 export async function generate(draft: Draft) {
@@ -117,70 +116,4 @@ export async function generate(draft: Draft) {
   link.remove()
 
   URL.revokeObjectURL(blobUrl)
-}
-
-let ffmpeg: FFmpeg
-
-async function toBlobURL(url: string, mimeType: string) {
-  const buf = await (await fetch(url)).arrayBuffer()
-  const blob = new Blob([buf], { type: mimeType })
-  return URL.createObjectURL(blob)
-}
-
-import CORE_URL from "@ffmpeg/core?url"
-import WASM_URL from "@ffmpeg/core/wasm?url"
-
-export async function convertSound(input: File) {
-  if (!ffmpeg) {
-    ffmpeg = new FFmpeg()
-
-    ffmpeg.on("log", ({ message }) => console.log(message))
-
-    await ffmpeg.load({
-      coreURL: CORE_URL,
-      wasmURL: WASM_URL,
-    })
-  }
-
-  const filename = input.name
-
-  await ffmpeg.writeFile(filename, new Uint8Array(await input.arrayBuffer()))
-
-  let duration = 0
-
-  const calcDuration = ({ message }: any) => {
-    const match = message.match(/Duration: (\d{2}):(\d{2}):(\d{2})/)
-    if (match) {
-      const [, h, m, s] = match
-      duration = parseInt(h) * 3600 + parseInt(m) * 60 + parseInt(s) + 1
-      ffmpeg.off("log", calcDuration)
-    }
-  }
-
-  ffmpeg.on("log", calcDuration)
-
-  await ffmpeg.exec([
-    "-i",
-    filename,
-    "-ac", // mono audio
-    "1",
-    "-map", // remove metadata
-    "0:a:0",
-    "-b:a", // 32k bitrate
-    "32k",
-    `${filename}.out.ogg`,
-  ])
-
-  let sound = await ffmpeg.readFile(`${filename}.out.ogg`)
-
-  if (typeof sound === "string") {
-    sound = new TextEncoder().encode(sound)
-  }
-
-  await ffmpeg.deleteFile(filename)
-  await ffmpeg.deleteFile(`${filename}.out.ogg`)
-
-  ffmpeg.off("log", calcDuration)
-
-  return { sound: sound.buffer, duration }
 }
