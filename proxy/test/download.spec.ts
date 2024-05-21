@@ -7,6 +7,8 @@ describe("Download", () => {
     const response = await SELF.fetch(
       `https://example.com/download?target=${encodeURIComponent(target)}`,
     )
+
+    expect(response.headers.get("Access-Control-Allow-Origin")).toBeTruthy()
     expect(await response.text()).toMatchSnapshot()
   })
 
@@ -24,6 +26,7 @@ describe("Download", () => {
         `https://example.com/download?target=${encodeURIComponent(target)}`,
       )
 
+      expect(response.headers.get("Access-Control-Allow-Origin")).toBeTruthy()
       expect(await response.arrayBuffer()).toSatisfy(
         (buf: ArrayBuffer) => buf.byteLength > 0,
       )

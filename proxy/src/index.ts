@@ -1,12 +1,5 @@
 import * as youtube from "./youtube"
-
-export function headersForEnv(env: Env) {
-  return {
-    "Access-Control-Allow-Origin": env.ENV === "dev" ? "*" : "disco.auxves.dev",
-    "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
-    "Access-Control-Max-Age": "86400",
-  }
-}
+import { headersFor } from "./utils"
 
 async function handleDownload(request: Request, env: Env) {
   const url = new URL(request.url)
@@ -23,7 +16,7 @@ async function handleDownload(request: Request, env: Env) {
   const targetURL = new URL(target)
 
   if (youtube.hosts.includes(targetURL.host)) {
-    return youtube.handleDownload(targetURL, env)
+    return youtube.handleDownload(targetURL, request, env)
   }
 
   const res = await fetch(targetURL, {
@@ -34,7 +27,7 @@ async function handleDownload(request: Request, env: Env) {
     ...res,
     headers: {
       ...res.headers,
-      ...headersForEnv(env),
+      ...headersFor(request, env),
     },
   })
 }
@@ -64,14 +57,14 @@ async function handleOptions(request: Request, env: Env) {
         "Access-Control-Allow-Headers": request.headers.get(
           "Access-Control-Request-Headers",
         )!,
-        ...headersForEnv(env),
+        ...headersFor(request, env),
       },
     })
   } else {
     // Handle standard OPTIONS request.
     return new Response(null, {
       headers: {
-        Allow: "GET, OPTIONS",
+        Allow: "GET, HEAD, POST, OPTIONS",
       },
     })
   }
@@ -85,7 +78,7 @@ export default {
   ): Promise<Response> {
     if (request.method === "OPTIONS") {
       return handleOptions(request, env)
-    } else if (request.method === "GET") {
+    } else if (request.method === "GET" || request.method === "POST") {
       return handleRequest(request, env)
     } else {
       return new Response(null, {

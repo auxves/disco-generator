@@ -1,4 +1,4 @@
-import { headersForEnv } from "."
+import { headersFor } from "./utils"
 
 export const hosts = [
   "music.youtube.com",
@@ -13,7 +13,7 @@ function getFormat(data: any) {
   )
 }
 
-export async function handleDownload(url: URL, env: Env) {
+export async function handleDownload(url: URL, request: Request, env: Env) {
   const id = url.searchParams.get("v") || url.pathname.slice(1)
 
   if (!id) {
@@ -69,7 +69,7 @@ export async function handleDownload(url: URL, env: Env) {
     ...audio,
     headers: {
       ...audio.headers,
-      ...headersForEnv(env),
+      ...headersFor(request, env),
     },
   })
 }
