@@ -5,10 +5,12 @@
 
   import type { Disc } from "$lib/types"
   import { processAudio, processImage } from "$lib/ffmpeg"
+  import DEFAULT_TEXTURE from "$lib/images/disc.png"
 
   import * as Form from "$lib/components/ui/form"
   import * as Tabs from "$lib/components/ui/tabs"
   import { Input, FileInput } from "$lib/components/ui/input"
+  import { Badge } from "$lib/components/ui/badge"
 
   import { LoaderCircle } from "lucide-svelte"
 
@@ -24,14 +26,11 @@
     .instanceof(File, { message: "Sound is required." })
     .or(z.string().url())
 
-  const textureSchema = z
-    .instanceof(File, { message: "Texture is required." })
-    .or(z.string().url())
-
   const schema = z.object({
     identifier: z
       .string({ required_error: "Identifier is required." })
-      .min(1, "Identifier must be at least one character long.")
+      .min(2, "Identifier must be at least two characters long.")
+      .max(64, "Identifier must be at most 64 characters long.")
       .regex(
         /^[a-z0-9-_]*$/,
         "Identifier can only contain lowercase letters, numbers, dashes, and underscores.",
@@ -42,7 +41,11 @@
       .min(1, "Name must be at least one character long."),
 
     sound: data ? soundSchema.optional() : soundSchema,
-    texture: data ? textureSchema.optional() : textureSchema,
+
+    texture: z
+      .instanceof(File, { message: "Texture is required." })
+      .or(z.string().url())
+      .optional(),
   })
 
   let loading = $state(false)
@@ -53,6 +56,7 @@
       SPA: true,
       validators: zodClient(schema),
       async onUpdate({ form }) {
+        console.log(form)
         if (form.valid) {
           loading = true
 
@@ -71,7 +75,7 @@
               identifier,
               name,
               ...(await processAudio(sound!)),
-              ...(await processImage(texture!)),
+              ...(await processImage(texture ?? DEFAULT_TEXTURE)),
               draft: owner,
             })
           }
@@ -163,7 +167,10 @@
 
   <Form.Field {form} name="texture">
     <Form.Control let:attrs>
-      <Form.Label>Texture</Form.Label>
+      <Form.Label>
+        Texture
+        <Badge class="ml-1" variant="outline">optional</Badge>
+      </Form.Label>
 
       <Tabs.Root
         value="upload"
@@ -181,7 +188,7 @@
             bind:files={$texture}
           />
           <Form.Description>
-            The chosen file will automatically be converted to the right format.
+            If not specified, the default texture will be used.
           </Form.Description>
         </Tabs.Content>
         <Tabs.Content value="url" class="space-y-2">

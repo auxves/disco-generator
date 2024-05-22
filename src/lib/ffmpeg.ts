@@ -91,7 +91,9 @@ export async function processImage(file: Resource) {
 
 async function bufferOf(file: Resource) {
   if (typeof file === "string") {
-    const res = await fetchProxied(file)
+    const res = file.startsWith("/")
+      ? await fetch(file)
+      : await fetchProxied(file)
     return res.arrayBuffer()
   } else {
     return file.arrayBuffer()
@@ -100,5 +102,5 @@ async function bufferOf(file: Resource) {
 
 function isPng(file: Resource) {
   if (typeof file === "string") return file.endsWith(".png")
-  else return file.type === "image/png"
+  return file.type === "image/png"
 }

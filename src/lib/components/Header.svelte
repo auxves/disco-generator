@@ -3,8 +3,15 @@
   import { page } from "$app/stores"
 
   import { Slash } from "lucide-svelte"
+  import { liveQuery } from "dexie"
 
   const draft_id = $derived($page.params.draft_id)
+
+  const draft = $derived(
+    !isNaN(+draft_id)
+      ? liveQuery(() => db.drafts.get(+draft_id))
+      : liveQuery(() => undefined),
+  )
 </script>
 
 <header class="flex h-16 items-center px-8 border-b">
@@ -20,15 +27,11 @@
       Drafts
     </a>
 
-    {#if draft_id}
-      {#await db.drafts.get(+draft_id) then draft}
-        {#if draft}
-          <Slash class="opacity-40" />
-          <span class="last:text-primary hover:text-primary transition-colors">
-            {draft.name}
-          </span>
-        {/if}
-      {/await}
+    {#if $draft}
+      <Slash class="opacity-40" />
+      <span class="last:text-primary hover:text-primary transition-colors">
+        {$draft.name}
+      </span>
     {/if}
   </nav>
 </header>

@@ -3,21 +3,26 @@
   import { defaults, superForm } from "sveltekit-superforms"
   import { zod, zodClient } from "sveltekit-superforms/adapters"
 
+  import type { Draft } from "$lib/types"
+
   import * as Form from "$lib/components/ui/form"
   import { Input } from "$lib/components/ui/input"
-  import type { Draft } from "$lib/types"
+  import { Badge } from "$lib/components/ui/badge"
 
   const schema = z.object({
     namespace: z
       .string({ required_error: "Namespace is required." })
-      .min(1, "Namespace must be at least one character long.")
+      .min(2, "Namespace must be at least two characters long.")
+      .max(64, "Namespace must be at most 64 characters long.")
       .regex(
-        /[a-z0-9.-_]*/,
-        "Namespace can only contain lowercase letters, numbers, dashes, underscores, and periods.",
+        /^[a-z0-9-_]*$/,
+        "Namespace can only contain lowercase letters, numbers, dashes, and underscores.",
       ),
+
     name: z
       .string({ required_error: "Name is required." })
-      .min(1, "Name must be at least one character long."),
+      .min(1, "Name is required."),
+
     description: z.string().default(""),
   })
 
@@ -76,7 +81,10 @@
 
   <Form.Field {form} name="description">
     <Form.Control let:attrs>
-      <Form.Label>Description</Form.Label>
+      <Form.Label>
+        Description
+        <Badge class="ml-1" variant="outline">optional</Badge>
+      </Form.Label>
       <Input
         placeholder="This disco addon..."
         class="max-sm:text-base"
@@ -85,7 +93,7 @@
       />
     </Form.Control>
     <Form.Description>
-      Optional. This will be the generated mod's description.
+      This will be the generated mod's description.
     </Form.Description>
     <Form.FieldErrors />
   </Form.Field>

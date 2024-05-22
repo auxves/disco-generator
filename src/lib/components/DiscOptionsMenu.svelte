@@ -11,6 +11,7 @@
 
   import { Ellipsis, Trash, Edit2, Move } from "lucide-svelte"
 
+  import { isPlaying, pause } from "$lib/components/AudioPlayer.svelte"
   import { confirm } from "$lib/components/Confirm.svelte"
   import DiscForm from "$lib/components/DiscForm.svelte"
 
@@ -20,7 +21,7 @@
 
   const { disc }: Props = $props()
 
-  const drafts = $derived(liveQuery(() => db.drafts.toArray()))
+  const drafts = liveQuery(() => db.drafts.toArray())
 
   let open = $state(false)
 </script>
@@ -101,6 +102,7 @@
             "This disc and all resources associated with it will be permanently deleted.",
           action: "Delete",
           onConfirm() {
+            if (isPlaying(disc)) pause()
             db.discs.delete(disc.id)
           },
         })
