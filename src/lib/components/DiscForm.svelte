@@ -4,12 +4,13 @@
   import { zod, zodClient } from "sveltekit-superforms/adapters"
 
   import type { Disc } from "$lib/types"
-  import { processAudio } from "$lib/audio"
-  import { fetchProxied } from "$lib/utils"
+  import { processAudio, processImage } from "$lib/ffmpeg"
+  import DEFAULT_TEXTURE from "$lib/images/disc.png"
 
   import * as Form from "$lib/components/ui/form"
   import * as Tabs from "$lib/components/ui/tabs"
   import { Input, FileInput } from "$lib/components/ui/input"
+  import { Badge } from "$lib/components/ui/badge"
 
   import { LoaderCircle } from "lucide-svelte"
 
@@ -25,12 +26,11 @@
     .instanceof(File, { message: "Sound is required." })
     .or(z.string().url())
 
-  const textureSchema = z.instanceof(File, { message: "Texture is required." })
-
   const schema = z.object({
     identifier: z
       .string({ required_error: "Identifier is required." })
-      .min(1, "Identifier must be at least one character long.")
+      .min(2, "Identifier must be at least two characters long.")
+      .max(64, "Identifier must be at most 64 characters long.")
       .regex(
         /^[a-z0-9-_]*$/,
         "Identifier can only contain lowercase letters, numbers, dashes, and underscores.",
@@ -41,7 +41,11 @@
       .min(1, "Name must be at least one character long."),
 
     sound: data ? soundSchema.optional() : soundSchema,
-    texture: data ? textureSchema.optional() : textureSchema,
+
+    texture: z
+      .instanceof(File, { message: "Texture is required." })
+      .or(z.string().url())
+      .optional(),
   })
 
   let loading = $state(false)
@@ -52,16 +56,11 @@
       SPA: true,
       validators: zodClient(schema),
       async onUpdate({ form }) {
+        console.log(form)
         if (form.valid) {
           loading = true
 
           let { identifier, name, sound, texture } = form.data
-
-          if (typeof sound === "string") {
-            const res = await fetchProxied(sound)
-            const blob = await res.blob()
-            sound = new File([blob], "sound.opus")
-          }
 
           if (data) {
             onSubmit({
@@ -69,14 +68,14 @@
               identifier,
               name,
               ...(sound ? await processAudio(sound) : {}),
-              ...(texture ? { texture: await texture.arrayBuffer() } : {}),
+              ...(texture ? await processImage(texture) : {}),
             })
           } else {
             onSubmit({
               identifier,
               name,
               ...(await processAudio(sound!)),
-              texture: await texture!.arrayBuffer(),
+              ...(await processImage(texture ?? DEFAULT_TEXTURE)),
               draft: owner,
             })
           }
@@ -168,17 +167,44 @@
 
   <Form.Field {form} name="texture">
     <Form.Control let:attrs>
-      <Form.Label>Texture</Form.Label>
-      <FileInput
-        autocomplete="off"
-        accept="image/png"
-        {...attrs}
-        bind:files={$texture}
-      />
+      <Form.Label>
+        Texture
+        <Badge class="ml-1" variant="outline">optional</Badge>
+      </Form.Label>
+
+      <Tabs.Root
+        value="upload"
+        onValueChange={() => ($formData.texture = undefined)}
+      >
+        <Tabs.List class="grid w-full grid-cols-2">
+          <Tabs.Trigger value="upload">Upload</Tabs.Trigger>
+          <Tabs.Trigger value="url">From URL</Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="upload" class="space-y-2">
+          <FileInput
+            autocomplete="off"
+            accept="image/*"
+            {...attrs}
+            bind:files={$texture}
+          />
+          <Form.Description>
+            If not specified, the default texture will be used.
+          </Form.Description>
+        </Tabs.Content>
+        <Tabs.Content value="url" class="space-y-2">
+          <Input
+            placeholder="https://disco.auxves.dev/favicon.png"
+            autocomplete="off"
+            class="max-sm:text-base"
+            {...attrs}
+            bind:value={$formData.texture}
+          />
+          <Form.Description>
+            Direct links to image files are supported.
+          </Form.Description>
+        </Tabs.Content>
+      </Tabs.Root>
     </Form.Control>
-    <Form.Description>
-      The texture of the disc. It must be a png file.
-    </Form.Description>
     <Form.FieldErrors />
   </Form.Field>
 

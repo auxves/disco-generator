@@ -25,6 +25,7 @@ export async function download(target: URL, request: Request) {
     })
   }
 
+  // https://github.com/hi-ogawa/youtube-dl-web-v2/raw/aba63b192ab7eef362aa93d0b98a6cf539284f5a/packages/app/src/utils/youtube-utils.ts
   const res = await fetch("https://www.youtube.com/youtubei/v1/player", {
     method: "POST",
     body: JSON.stringify({

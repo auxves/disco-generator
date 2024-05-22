@@ -16,7 +16,7 @@
   import NewDraftDialog from "./NewDraftDialog.svelte"
   import { confirm } from "$lib/components/Confirm.svelte"
 
-  const drafts = $derived(liveQuery(() => db.drafts.toArray()))
+  const drafts = liveQuery(() => db.drafts.toArray())
 
   function discCount(draft: Draft) {
     return db.discs.where("draft").equals(draft.id!).count()

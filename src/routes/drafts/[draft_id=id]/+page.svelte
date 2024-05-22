@@ -1,7 +1,6 @@
 <script lang="ts">
   import { liveQuery } from "dexie"
 
-  import { page } from "$app/stores"
   import { db } from "$lib/db"
   import { generate } from "$lib/generation"
 
@@ -12,17 +11,22 @@
   import { Download } from "lucide-svelte"
 
   import DiscCard from "$lib/components/DiscCard.svelte"
+  import DraftOptionsMenu from "$lib/components/DraftOptionsMenu.svelte"
 
   import NewDiscDialog from "./NewDiscDialog.svelte"
-  import DraftOptionsMenu from "./DraftOptionsMenu.svelte"
 
-  const { draft_id } = $page.params as import("./$types").RouteParams
+  const { data } = $props()
+  const { draft_id } = $derived(data)
 
-  const draft = $derived(liveQuery(() => db.drafts.get(+draft_id)))
+  const draft = $derived.by(() => {
+    draft_id // for reactivity
+    return liveQuery(() => db.drafts.get(draft_id))
+  })
 
-  const discs = $derived(
-    liveQuery(() => db.discs.where("draft").equals(+draft_id).toArray()),
-  )
+  const discs = $derived.by(() => {
+    draft_id // for reactivity
+    return liveQuery(() => db.discs.where("draft").equals(draft_id).toArray())
+  })
 </script>
 
 {#if $draft}
