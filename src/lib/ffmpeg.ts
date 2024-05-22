@@ -91,7 +91,7 @@ export async function processImage(file: Resource) {
 
 async function bufferOf(file: Resource) {
   if (typeof file === "string") {
-    const res = file.startsWith("/")
+    const res = /^(\/|data:|blob:)/.test(file)
       ? await fetch(file)
       : await fetchProxied(file)
     return res.arrayBuffer()
