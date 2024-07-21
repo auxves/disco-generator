@@ -1,4 +1,4 @@
-import { downloadZip } from "client-zip"
+import JSZip from "jszip"
 import type { Draft } from "./types"
 
 import { db } from "./db"
@@ -8,9 +8,11 @@ export async function generate(draft: Draft) {
 
   const { namespace, name, description } = draft
 
-  const fabricModJson = {
-    name: "fabric.mod.json",
-    input: JSON.stringify({
+  const zip = new JSZip()
+
+  zip.file(
+    "fabric.mod.json",
+    JSON.stringify({
       schemaVersion: 1,
       id: namespace,
       name,
@@ -25,11 +27,11 @@ export async function generate(draft: Draft) {
         },
       },
     }),
-  }
+  )
 
-  const soundsJson = {
-    name: `assets/${namespace}/sounds.json`,
-    input: JSON.stringify(
+  zip.file(
+    `assets/${namespace}/sounds.json`,
+    JSON.stringify(
       Object.fromEntries(
         discs.map((disc) => [
           disc.identifier,
@@ -40,31 +42,30 @@ export async function generate(draft: Draft) {
         ]),
       ),
     ),
+  )
+
+  for (const disc of discs) {
+    zip.file(
+      `assets/${namespace}/textures/item/${disc.identifier}.png`,
+      disc.texture,
+    )
+
+    zip.file(`assets/${namespace}/sounds/${disc.identifier}.ogg`, disc.sound)
+
+    zip.file(
+      `assets/${namespace}/models/item/${disc.identifier}.json`,
+      JSON.stringify({
+        parent: "item/generated",
+        textures: {
+          layer0: `${namespace}:item/${disc.identifier}`,
+        },
+      }),
+    )
   }
 
-  const textures = discs.map((disc) => ({
-    name: `assets/${namespace}/textures/item/${disc.identifier}.png`,
-    input: disc.texture,
-  }))
-
-  const soundFiles = discs.map((disc) => ({
-    name: `assets/${namespace}/sounds/${disc.identifier}.ogg`,
-    input: disc.sound,
-  }))
-
-  const models = discs.map((disc) => ({
-    name: `assets/${namespace}/models/item/${disc.identifier}.json`,
-    input: JSON.stringify({
-      parent: "item/generated",
-      textures: {
-        layer0: `${namespace}:item/${disc.identifier}`,
-      },
-    }),
-  }))
-
-  const translations = {
-    name: `assets/${namespace}/lang/en_us.json`,
-    input: JSON.stringify(
+  zip.file(
+    `assets/${namespace}/lang/en_us.json`,
+    JSON.stringify(
       Object.fromEntries(
         discs.map((disc) => [
           `item.${namespace}.${disc.identifier}.desc`,
@@ -72,41 +73,31 @@ export async function generate(draft: Draft) {
         ]),
       ),
     ),
-  }
+  )
 
-  const discsTag = {
-    name: `data/${namespace}/tags/items/discs.json`,
-    input: JSON.stringify({
+  zip.file(
+    `data/${namespace}/tags/items/discs.json`,
+    JSON.stringify({
       values: discs.map((disc) => ({
         id: `${namespace}:${disc.identifier}`,
         required: false,
       })),
     }),
-  }
+  )
 
-  const globalDiscsTag = {
-    name: `data/minecraft/tags/items/music_discs.json`,
-    input: JSON.stringify({
+  zip.file(
+    `data/minecraft/tags/items/music_discs.json`,
+    JSON.stringify({
       values: [{ id: `#${namespace}:discs`, required: false }],
     }),
-  }
+  )
 
-  const manifest = {
-    name: `META-INF/MANIFEST.MF`,
-    input: `Manifest-Version: 1.0\nFabric-Loom-Mixin-Remap-Type: mixin`,
-  }
+  zip.file(
+    "META-INF/MANIFEST.MF",
+    `Manifest-Version: 1.0\nFabric-Loom-Mixin-Remap-Type: mixin`,
+  )
 
-  const blob = await downloadZip([
-    fabricModJson,
-    soundsJson,
-    ...soundFiles,
-    ...textures,
-    ...models,
-    translations,
-    discsTag,
-    globalDiscsTag,
-    manifest,
-  ]).blob()
+  const blob = await zip.generateAsync({ compression: "DEFLATE", type: "blob" })
 
   const link = document.createElement("a")
   const blobUrl = URL.createObjectURL(blob)
