@@ -33,8 +33,12 @@ export async function download(target: URL, request: Request) {
       context: {
         client: {
           clientName: "ANDROID",
-          clientVersion: "18.11.34",
+          clientVersion: "19.44.38",
           androidSdkVersion: 30,
+          userAgent:
+            "com.google.android.youtube/19.44.38 (Linux; U; Android 11) gzip",
+          osName: "Android",
+          osVersion: "11",
           hl: "en",
           timeZone: "UTC",
           utcOffsetMinutes: 0,
@@ -42,11 +46,11 @@ export async function download(target: URL, request: Request) {
       },
     }),
     headers: {
-      "X-YouTube-Client-Name": "3",
-      "X-YouTube-Client-Version": "18.11.34",
+      "X-YouTube-Client-Name": "ANDROID",
+      "X-YouTube-Client-Version": "19.44.38",
       Origin: "https://www.youtube.com",
       "User-Agent":
-        "com.google.android.youtube/18.11.34 (Linux; U; Android 11) gzip",
+        "com.google.android.youtube/19.44.38 (Linux; U; Android 11) gzip",
       "content-type": "application/json",
     },
   })
