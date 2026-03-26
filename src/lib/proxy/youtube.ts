@@ -1,4 +1,4 @@
-import { Innertube, Platform, type Types } from "youtubei.js"
+import { Innertube, Platform, type Types } from "youtubei.js/cf-worker"
 
 Platform.shim.eval = async (
   data: Types.BuildScriptResult,
@@ -42,7 +42,7 @@ export async function download(target: URL) {
 
   const innertube = await Innertube.create({})
 
-  const stream = await innertube.download("MUny_GDYIDM", {
+  const stream = await innertube.download(id, {
     type: "audio",
     client: "YTMUSIC",
   })
