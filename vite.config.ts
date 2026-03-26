@@ -7,9 +7,6 @@ export default defineConfig({
     target: "esnext",
   },
   optimizeDeps: {
-    esbuildOptions: {
-      target: "es2020",
-    },
     exclude: ["@ffmpeg/ffmpeg", "@ffmpeg/util"],
   },
 })
