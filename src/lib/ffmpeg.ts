@@ -61,7 +61,7 @@ export async function processAudio(file: Resource) {
 
   ffmpeg.off("log", calcDuration)
 
-  return { sound: sound.buffer, duration }
+  return { sound: sound.buffer as ArrayBuffer, duration }
 }
 
 export async function processImage(file: Resource) {
@@ -86,7 +86,7 @@ export async function processImage(file: Resource) {
   await ffmpeg.deleteFile(input)
   await ffmpeg.deleteFile(out)
 
-  return { texture: texture.buffer }
+  return { texture: texture.buffer as ArrayBuffer }
 }
 
 async function bufferOf(file: Resource) {

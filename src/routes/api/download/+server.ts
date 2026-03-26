@@ -13,7 +13,7 @@ export async function GET({ fetch, request, url }) {
   const target = new URL(targetString)
 
   if (youtube.matches(target)) {
-    return youtube.download(target, request)
+    return youtube.download(target)
   }
 
   return fetch(target, {

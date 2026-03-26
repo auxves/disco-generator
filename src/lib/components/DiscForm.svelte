@@ -1,7 +1,7 @@
 <script lang="ts">
   import { z } from "zod"
   import { defaults, fileProxy, superForm } from "sveltekit-superforms"
-  import { zod, zodClient } from "sveltekit-superforms/adapters"
+  import { zod4, zod4Client } from "sveltekit-superforms/adapters"
 
   import type { Disc } from "$lib/types"
   import { processAudio, processImage } from "$lib/ffmpeg"
@@ -28,7 +28,7 @@
 
   const schema = z.object({
     identifier: z
-      .string({ required_error: "Identifier is required." })
+      .string({ error: "Identifier is required." })
       .min(2, "Identifier must be at least two characters long.")
       .max(64, "Identifier must be at most 64 characters long.")
       .regex(
@@ -37,9 +37,10 @@
       ),
 
     name: z
-      .string({ required_error: "Name is required." })
+      .string({ error: "Name is required." })
       .min(1, "Name must be at least one character long."),
 
+    // svelte-ignore state_referenced_locally
     sound: data ? soundSchema.optional() : soundSchema,
 
     texture: z
@@ -51,10 +52,11 @@
   let loading = $state(false)
 
   const form = superForm(
-    defaults({ identifier: data?.identifier, name: data?.name }, zod(schema)),
+    // svelte-ignore state_referenced_locally
+    defaults({ identifier: data?.identifier, name: data?.name }, zod4(schema)),
     {
       SPA: true,
-      validators: zodClient(schema),
+      validators: zod4Client(schema),
       async onUpdate({ form }) {
         console.log(form)
         if (form.valid) {

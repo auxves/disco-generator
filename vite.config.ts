@@ -4,12 +4,9 @@ import { defineConfig } from "vite"
 export default defineConfig({
   plugins: [sveltekit()],
   build: {
-    target: "esnext",
+    target: "es2023",
   },
   optimizeDeps: {
-    esbuildOptions: {
-      target: "es2020",
-    },
     exclude: ["@ffmpeg/ffmpeg", "@ffmpeg/util"],
   },
 })
