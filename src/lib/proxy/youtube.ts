@@ -41,13 +41,11 @@ export async function download(target: URL) {
   }
 
   const innertube = await Innertube.create({
-    client_type: ClientType.WEB,
-    cookie: process.env.YT_COOKIE,
+    client_type: ClientType.MWEB,
   })
 
   const stream = await innertube.download(id, {
     type: "audio",
-    client: "YTMUSIC",
   })
 
   return new Response(stream)
