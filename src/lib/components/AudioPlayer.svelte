@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import type { Disc } from "$lib/types"
 
   let audio = $state<HTMLAudioElement>()!

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+
+  "extends": ["config:best-practices"],
+
+  "automergeType": "pr",
+  "platformAutomerge": true,
+
+  "packageRules": [
+    {
+      "matchPackageNames": ["*"],
+      "enabled": false
+    },
+    {
+      "matchUpdateTypes": ["patch", "minor"],
+      "matchPackageNames": ["youtubei.js"],
+      "enabled": true,
+      "automerge": true
+    }
+  ]
+}

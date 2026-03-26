@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
   import * as AlertDialog from "$lib/components/ui/alert-dialog"
   import { buttonVariants } from "./ui/button"
 

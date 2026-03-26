@@ -8,7 +8,7 @@
   const draft_id = $derived($page.params.draft_id)
 
   const draft = $derived(
-    !isNaN(+draft_id)
+    draft_id !== undefined
       ? liveQuery(() => db.drafts.get(+draft_id))
       : liveQuery(() => undefined),
   )

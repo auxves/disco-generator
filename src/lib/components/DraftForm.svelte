@@ -1,7 +1,7 @@
 <script lang="ts">
   import { z } from "zod"
   import { defaults, superForm } from "sveltekit-superforms"
-  import { zod, zodClient } from "sveltekit-superforms/adapters"
+  import { zod4, zod4Client } from "sveltekit-superforms/adapters"
 
   import type { Draft } from "$lib/types"
 
@@ -11,7 +11,7 @@
 
   const schema = z.object({
     namespace: z
-      .string({ required_error: "Namespace is required." })
+      .string({ error: "Namespace is required." })
       .min(2, "Namespace must be at least two characters long.")
       .max(64, "Namespace must be at most 64 characters long.")
       .regex(
@@ -19,9 +19,7 @@
         "Namespace can only contain lowercase letters, numbers, dashes, and underscores.",
       ),
 
-    name: z
-      .string({ required_error: "Name is required." })
-      .min(1, "Name is required."),
+    name: z.string({ error: "Name is required." }).min(1, "Name is required."),
 
     description: z.string().default(""),
   })
@@ -33,9 +31,9 @@
 
   const { data, onSubmit }: Props = $props()
 
-  const form = superForm(defaults(data, zod(schema)), {
+  const form = superForm(defaults(data, zod4(schema)), {
     SPA: true,
-    validators: zodClient(schema),
+    validators: zod4Client(schema),
     onUpdate({ form }) {
       if (form.valid) {
         onSubmit(form.data)
